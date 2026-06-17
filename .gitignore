@@ -1,0 +1,17 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.local
+.env.*.local
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+*.log
+
+# local-only preview/demo artifacts (not part of the app)
+wallet-preview.html
+preview-full.png
+public/icon-*.png
+gen-icons.mjs
