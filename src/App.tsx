@@ -47,11 +47,13 @@ function Header() {
 
         <div className="flex items-center gap-2">
           <span
-            className={`hidden items-center gap-1.5 text-xs sm:flex ${online ? 'text-slate-500' : 'text-amber-400'}`}
+            className={`flex items-center gap-1.5 text-xs ${online ? 'text-slate-500' : 'text-amber-400'}`}
             title={pending > 0 ? `${pending} change(s) waiting to sync` : online ? 'Synced' : 'Offline'}
           >
             <span className={`h-2 w-2 rounded-full ${online ? 'bg-mint' : 'bg-amber-400'}`} />
-            {online ? (pending > 0 ? `Syncing ${pending}` : 'Synced') : 'Offline'}
+            <span className="hidden sm:inline">
+              {online ? (pending > 0 ? `Syncing ${pending}` : 'Synced') : 'Offline'}
+            </span>
           </span>
           <button className="btn-icon" aria-label="Sign out" onClick={() => void signOut()} title="Sign out">
             ⎋
