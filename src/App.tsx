@@ -29,7 +29,7 @@ function Header() {
             ‹
           </button>
           <button
-            className="min-w-[8.5rem] rounded-lg px-2 py-1 text-center text-sm font-semibold hover:bg-ink-700"
+            className="min-w-[7rem] rounded-lg px-2 py-1 text-center text-sm font-semibold hover:bg-ink-700"
             onClick={() => setMonth(realMonth)}
             title="Jump to current month"
           >
@@ -51,9 +51,7 @@ function Header() {
             title={pending > 0 ? `${pending} change(s) waiting to sync` : online ? 'Synced' : 'Offline'}
           >
             <span className={`h-2 w-2 rounded-full ${online ? 'bg-mint' : 'bg-amber-400'}`} />
-            <span className="hidden sm:inline">
-              {online ? (pending > 0 ? `Syncing ${pending}` : 'Synced') : 'Offline'}
-            </span>
+            {online ? (pending > 0 ? `Syncing ${pending}` : 'Synced') : 'Offline'}
           </span>
           <button className="btn-icon" aria-label="Sign out" onClick={() => void signOut()} title="Sign out">
             ⎋
