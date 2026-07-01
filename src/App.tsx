@@ -55,7 +55,7 @@ function Header() {
             {online ? (pending > 0 ? `Syncing ${pending}` : 'Synced') : 'Offline'}
           </span>
           <button className="btn-icon" aria-label="Sign out" onClick={() => void signOut()} title="Sign out">
-            ⏋
+            ⎋
           </button>
         </div>
       </div>
