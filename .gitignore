@@ -15,3 +15,7 @@ wallet-preview.html
 preview-full.png
 public/icon-*.png
 gen-icons.mjs
+
+tsconfig.tsbuildinfo
+# lockfile untracked: repo pushes go through the GitHub MCP (text API), 261KB is too heavy
+package-lock.json

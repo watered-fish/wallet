@@ -8,6 +8,7 @@ import { IncomePanel } from './components/IncomePanel';
 import { ExpensePanel } from './components/ExpensePanel';
 import { CategoryManager } from './components/CategoryManager';
 import { MiniCalendar } from './components/MiniCalendar';
+import { MonthHistory } from './components/MonthHistory';
 import { RentTracker } from './components/RentTracker';
 import { monthLabel } from './lib/date';
 
@@ -54,7 +55,7 @@ function Header() {
             {online ? (pending > 0 ? `Syncing ${pending}` : 'Synced') : 'Offline'}
           </span>
           <button className="btn-icon" aria-label="Sign out" onClick={() => void signOut()} title="Sign out">
-            ⎋
+            ⏋
           </button>
         </div>
       </div>
@@ -87,6 +88,9 @@ function Shell() {
           <MiniCalendar />
           <div className="lg:col-span-2">
             <RentTracker />
+          </div>
+          <div className="lg:col-span-2">
+            <MonthHistory />
           </div>
         </div>
         <p className="mt-6 text-center text-xs text-slate-600">Wallet · USD · {monthLabel(month)}</p>

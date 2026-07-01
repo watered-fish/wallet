@@ -1,8 +1,9 @@
 # Wallet
 
-A single-user personal budgeting PWA. Paycheck-in vs. expenses-out, one isolated
-sheet per month, with a savings-rate summary, category budgets, a spending
-calendar, and a roommate rent splitter. React + Supabase, installable on a phone
+A single-user personal budgeting PWA. Paycheck-in vs. expenses-out, one sheet
+per month with a rolling balance carried between them, an available-to-spend
+summary, category budgets, a spending calendar, and a roommate rent splitter.
+React + Supabase, installable on a phone
 home screen, works offline and auto-syncs when back online.
 
 ## Stack
@@ -42,9 +43,15 @@ Open the printed localhost URL and sign in with the user you created.
 4. Deploy. On your phone, open the URL and **Add to Home Screen** to install the PWA.
 
 ## How the money logic works
-- **No starting balance, no rolling balance.** Each month stands alone.
-- **Savings rate** = (total income − effective expenses) ÷ total income, shown as the
-  headline stat. It is computed continuously and reflects the month as it fills in.
+- **Rolling balance.** Paychecks land at the *end* of a month, so each month's
+  closing balance (income − effective expenses, accumulated) carries into the
+  next as **“Carried in”**. Income and expenses stay logged in the month they
+  actually happened; the carryover is derived, never stored.
+- **Available to spend** = carried in + this month's income − this month's
+  effective expenses. This is the headline stat, with a ring showing the % of
+  funds remaining and a per-day pace estimate until payday.
+- **Savings rate** = (total income − effective expenses) ÷ total income, shown
+  per month as a secondary stat.
 - **Caleb's rent share** (total rent ÷ 3) is automatically deducted from the month's
   budget. Rich's and Bella's shares never affect it.
 - **Budget caps are global** (per category, persist across months); progress bars

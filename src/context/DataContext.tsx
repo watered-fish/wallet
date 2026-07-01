@@ -19,6 +19,8 @@ import {
 } from '../lib/store';
 import { pendingCount as outboxCount, writeCache } from '../lib/offline';
 import { DEFAULT_CATEGORIES } from '../lib/defaults';
+import { carryoverBefore, summarizeMonths } from '../lib/calc';
+import type { MonthSummary } from '../lib/calc';
 import { currentMonthKey, msUntilNextMonth, shiftMonth } from '../lib/date';
 import type {
   Category,
@@ -44,6 +46,10 @@ interface DataState {
   goPrevMonth: () => void;
   goNextMonth: () => void;
   monthData: MonthData;
+  /** Funds left over from all months before the selected one. */
+  carryover: number;
+  /** Per-month income/spend/net with a running balance, oldest first. */
+  history: MonthSummary[];
 
   addCategory: (name: string, color: string, cap: number) => void;
   updateCategory: (id: string, patch: Partial<Pick<Category, 'name' | 'color' | 'budget_cap'>>) => void;
@@ -192,6 +198,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
     [income, expenses, rents, rentPayments, month],
   );
 
+  const history = useMemo(
+    () => summarizeMonths(income, expenses, rents),
+    [income, expenses, rents],
+  );
+  const carryover = useMemo(() => carryoverBefore(month, history), [month, history]);
+
   // --- mutation helpers ---------------------------------------------------
   const persistCategories = (next: Category[]) => {
     setCategories(next);
@@ -228,6 +240,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       goPrevMonth: () => setMonth((m) => shiftMonth(m, -1)),
       goNextMonth: () => setMonth((m) => shiftMonth(m, 1)),
       monthData,
+      carryover,
+      history,
 
       addCategory(name, color, cap) {
         const row: Category = {
@@ -332,7 +346,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       },
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, online, pending, categories, income, expenses, rents, rentPayments, month, realMonth, monthData]);
+  }, [ready, online, pending, categories, income, expenses, rents, rentPayments, month, realMonth, monthData, carryover, history]);
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }

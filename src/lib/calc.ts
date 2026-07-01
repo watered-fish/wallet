@@ -1,5 +1,5 @@
 import { ROOMMATES } from './types';
-import type { Expense, Income, Rent, RentPayment, RoommateName } from './types';
+import type { Expense, Income, MonthKey, Rent, RentPayment, RoommateName } from './types';
 
 export function sumIncome(income: Income[]): number {
   return income.reduce((acc, i) => acc + i.amount, 0);
@@ -31,6 +31,52 @@ export function savingsRate(income: Income[], expenses: Expense[], rent: Rent | 
   const total = sumIncome(income);
   if (total <= 0) return 0;
   return (netSavings(income, expenses, rent) / total) * 100;
+}
+
+export interface MonthSummary {
+  month: MonthKey;
+  income: number;
+  spent: number; // logged expenses + Caleb's rent share
+  net: number;
+  balance: number; // running balance through the end of this month
+}
+
+/**
+ * One summary per month that has any data, oldest first, with a running
+ * balance. Because paychecks land at the END of a month, the balance a month
+ * closes with is what funds the next one.
+ */
+export function summarizeMonths(
+  income: Income[],
+  expenses: Expense[],
+  rents: Rent[],
+): MonthSummary[] {
+  const keys = new Set<MonthKey>();
+  for (const i of income) keys.add(i.month);
+  for (const e of expenses) keys.add(e.month);
+  for (const r of rents) keys.add(r.month);
+
+  let balance = 0;
+  return [...keys].sort().map((month) => {
+    const inc = sumIncome(income.filter((i) => i.month === month));
+    const spent = effectiveExpenses(
+      expenses.filter((e) => e.month === month),
+      rents.find((r) => r.month === month) ?? null,
+    );
+    const net = inc - spent;
+    balance += net;
+    return { month, income: inc, spent, net, balance };
+  });
+}
+
+/** Money carried into `month`: the running balance of all months before it. */
+export function carryoverBefore(month: MonthKey, summaries: MonthSummary[]): number {
+  let carried = 0;
+  for (const s of summaries) {
+    if (s.month >= month) break;
+    carried = s.balance;
+  }
+  return carried;
 }
 
 export function categorySpent(expenses: Expense[], categoryId: string): number {

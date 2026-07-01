@@ -37,6 +37,13 @@ export function startOfMonthDate(key: MonthKey): Date {
   return startOfMonth(monthDate(key));
 }
 
+/** Days remaining in the current calendar month, counting today. */
+export function daysLeftInMonth(): number {
+  const now = new Date();
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  return lastDay - now.getDate() + 1;
+}
+
 /**
  * Milliseconds until the next calendar month begins (midnight on the 1st).
  * Used to auto-advance the active month without a manual button.
