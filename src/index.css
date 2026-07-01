@@ -50,6 +50,13 @@
   }
 }
 
+@layer utilities {
+  /* keep content clear of the iPhone notch / home indicator (viewport-fit=cover) */
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
 /* keep number inputs clean */
 input[type='number']::-webkit-outer-spin-button,
 input[type='number']::-webkit-inner-spin-button {

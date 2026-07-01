@@ -49,6 +49,12 @@ export interface RentPayment {
   created_at: string;
 }
 
+export interface Settings {
+  id: string;
+  savings_goal_pct: number; // % of the funding paycheck to set aside, 0 disables
+  created_at: string;
+}
+
 export interface MonthData {
   income: Income[];
   expenses: Expense[];

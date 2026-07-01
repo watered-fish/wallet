@@ -8,7 +8,7 @@ import {
   setOutbox,
   writeCache,
 } from './offline';
-import type { Category, Expense, Income, Rent, RentPayment } from './types';
+import type { Category, Expense, Income, Rent, RentPayment, Settings } from './types';
 
 export interface TableMap {
   categories: Category;
@@ -16,6 +16,7 @@ export interface TableMap {
   expenses: Expense;
   rent: Rent;
   rent_payments: RentPayment;
+  settings: Settings;
 }
 
 function isOnline(): boolean {

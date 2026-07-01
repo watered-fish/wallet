@@ -10,15 +10,17 @@ import { CategoryManager } from './components/CategoryManager';
 import { MiniCalendar } from './components/MiniCalendar';
 import { MonthHistory } from './components/MonthHistory';
 import { RentTracker } from './components/RentTracker';
+import { SettingsModal } from './components/SettingsModal';
 import { monthLabel } from './lib/date';
+import { useState } from 'react';
 
-function Header() {
+function Header({ onOpenSettings }: { onOpenSettings: () => void }) {
   const { month, realMonth, setMonth, goPrevMonth, goNextMonth, online, pending } = useData();
   const { signOut } = useAuth();
   const viewingNow = month === realMonth;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/5 bg-ink-900/80 backdrop-blur">
+    <header className="pt-safe sticky top-0 z-40 border-b border-white/5 bg-ink-900/80 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-3">
         <div className="flex items-center gap-2">
           <span className="text-lg">👛</span>
@@ -54,6 +56,9 @@ function Header() {
             <span className={`h-2 w-2 rounded-full ${online ? 'bg-mint' : 'bg-amber-400'}`} />
             {online ? (pending > 0 ? `Syncing ${pending}` : 'Synced') : 'Offline'}
           </span>
+          <button className="btn-icon" aria-label="Settings" onClick={onOpenSettings} title="Settings">
+            ⚙
+          </button>
           <button className="btn-icon" aria-label="Sign out" onClick={() => void signOut()} title="Sign out">
             ⎋
           </button>
@@ -65,6 +70,7 @@ function Header() {
 
 function Shell() {
   const { ready, month } = useData();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   if (!ready) {
     return (
@@ -75,8 +81,9 @@ function Shell() {
   }
 
   return (
-    <div className="min-h-screen pb-16">
-      <Header />
+    <div className="min-h-screen" style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom))' }}>
+      <Header onOpenSettings={() => setSettingsOpen(true)} />
+      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <main className="mx-auto max-w-5xl px-4 py-4">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="lg:col-span-2">

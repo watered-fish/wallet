@@ -3,7 +3,8 @@ export type TableName =
   | 'income'
   | 'expenses'
   | 'rent'
-  | 'rent_payments';
+  | 'rent_payments'
+  | 'settings';
 
 export type OutboxKind = 'insert' | 'update' | 'delete';
 
