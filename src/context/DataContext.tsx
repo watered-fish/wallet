@@ -32,6 +32,7 @@ import type {
   Rent,
   RentPayment,
   RoommateName,
+  Settings,
 } from '../lib/types';
 
 interface DataState {
@@ -50,6 +51,11 @@ interface DataState {
   carryover: number;
   /** Per-month income/spend/net with a running balance, oldest first. */
   history: MonthSummary[];
+  /** The paycheck that funds the selected month (paid at the end of the previous one). */
+  fundingPaycheck: number;
+  /** % of the funding paycheck to set aside as savings; 0 disables the goal. */
+  savingsGoalPct: number;
+  setSavingsGoal: (pct: number) => void;
 
   addCategory: (name: string, color: string, cap: number) => void;
   updateCategory: (id: string, patch: Partial<Pick<Category, 'name' | 'color' | 'budget_cap'>>) => void;
@@ -86,25 +92,28 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [rents, setRents] = useState<Rent[]>([]);
   const [rentPayments, setRentPayments] = useState<RentPayment[]>([]);
+  const [settings, setSettings] = useState<Settings[]>([]);
 
   const [realMonth, setRealMonth] = useState<MonthKey>(currentMonthKey());
   const [month, setMonth] = useState<MonthKey>(currentMonthKey());
 
   // --- initial load + realtime + connectivity -----------------------------
   const refreshAll = useCallback(async () => {
-    const [c, i, e, r, p] = await Promise.all([
+    const [c, i, e, r, p, s] = await Promise.all([
       pull('categories'),
       pull('income'),
       pull('expenses'),
       pull('rent'),
       pull('rent_payments'),
+      pull('settings'),
     ]);
     setCategories(c);
     setIncome(i);
     setExpenses(e);
     setRents(r);
     setRentPayments(p);
-    return { c, i, e, r, p };
+    setSettings(s);
+    return { c, i, e, r, p, s };
   }, []);
 
   useEffect(() => {
@@ -204,6 +213,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
   );
   const carryover = useMemo(() => carryoverBefore(month, history), [month, history]);
 
+  // Paid at the end of the month: the paycheck funding the selected month is
+  // last month's. Fall back to this month's own (bootstrapping a first month).
+  const fundingPaycheck = useMemo(() => {
+    const paySum = (m: MonthKey) =>
+      income
+        .filter((i) => i.month === m && i.type === 'paycheck')
+        .reduce((acc, i) => acc + i.amount, 0);
+    const prev = paySum(shiftMonth(month, -1));
+    return prev > 0 ? prev : paySum(month);
+  }, [income, month]);
+
+  const savingsGoalPct = settings[0]?.savings_goal_pct ?? 0;
+
   // --- mutation helpers ---------------------------------------------------
   const persistCategories = (next: Category[]) => {
     setCategories(next);
@@ -225,6 +247,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setRentPayments(next);
     writeCache('rent_payments', next);
   };
+  const persistSettings = (next: Settings[]) => {
+    setSettings(next);
+    writeCache('settings', next);
+  };
 
   const bumpPending = () => window.setTimeout(() => setPending(outboxCount()), 50);
 
@@ -242,6 +268,27 @@ export function DataProvider({ children }: { children: ReactNode }) {
       monthData,
       carryover,
       history,
+      fundingPaycheck,
+      savingsGoalPct,
+
+      setSavingsGoal(pct) {
+        const clamped = Math.max(0, Math.min(100, pct));
+        const existing = settings[0];
+        if (existing) {
+          persistSettings(
+            settings.map((s) => (s.id === existing.id ? { ...s, savings_goal_pct: clamped } : s)),
+          );
+          void updateRow('settings', existing.id, { savings_goal_pct: clamped }).then(bumpPending);
+        } else {
+          const row: Settings = {
+            id: crypto.randomUUID(),
+            savings_goal_pct: clamped,
+            created_at: nowIso(),
+          };
+          persistSettings([row]);
+          void insertRow('settings', row).then(bumpPending);
+        }
+      },
 
       addCategory(name, color, cap) {
         const row: Category = {
@@ -346,7 +393,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       },
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, online, pending, categories, income, expenses, rents, rentPayments, month, realMonth, monthData, carryover, history]);
+  }, [ready, online, pending, categories, income, expenses, rents, rentPayments, settings, month, realMonth, monthData, carryover, history, fundingPaycheck, savingsGoalPct]);
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }

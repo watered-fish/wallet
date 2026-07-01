@@ -52,6 +52,10 @@ Open the printed localhost URL and sign in with the user you created.
   funds remaining and a per-day pace estimate until payday.
 - **Savings rate** = (total income − effective expenses) ÷ total income, shown
   per month as a secondary stat.
+- **Savings goal** (Settings ⚙, synced via the `settings` table): a % of the
+  funding paycheck (last month's, since pay lands at month-end) is set aside as
+  a gold slice on the dashboard ring and excluded from "Free to spend". Set 0
+  to disable.
 - **Caleb's rent share** (total rent ÷ 3) is automatically deducted from the month's
   budget. Rich's and Bella's shares never affect it.
 - **Budget caps are global** (per category, persist across months); progress bars
