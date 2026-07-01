@@ -14,10 +14,20 @@ const GOLD = '#ffd166';
 const MINT = '#3ddc97';
 const TRACK = '#24242e';
 
-function Stat({ label, value, tone }: { label: string; value: string; tone?: 'pos' | 'neg' }) {
+function Stat({
+  label,
+  value,
+  tone,
+  className = '',
+}: {
+  label: string;
+  value: string;
+  tone?: 'pos' | 'neg';
+  className?: string;
+}) {
   const color = tone === 'pos' ? 'text-mint' : tone === 'neg' ? 'text-coral' : 'text-slate-100';
   return (
-    <div className="card p-4">
+    <div className={`card p-4 ${className}`}>
       <div className="label">{label}</div>
       <div className={`mt-1 text-xl font-bold ${color}`}>{value}</div>
     </div>
@@ -114,11 +124,21 @@ export function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         <Stat label="Carried in" value={money(carryover)} tone={carryover >= 0 ? 'pos' : 'neg'} />
+        <Stat
+          label={hasGoal ? 'Spendable · after goal' : 'Spendable'}
+          value={money(spendable)}
+          tone={spendable > 0 ? 'pos' : 'neg'}
+        />
         <Stat label="Income · this month" value={money(totalIncome)} tone="pos" />
         <Stat label="Spent · this month" value={money(spent)} tone="neg" />
-        <Stat label="Net · this month" value={money(net)} tone={net >= 0 ? 'pos' : 'neg'} />
+        <Stat
+          label="Net · this month"
+          value={money(net)}
+          tone={net >= 0 ? 'pos' : 'neg'}
+          className="col-span-2 sm:col-span-1"
+        />
       </div>
 
       <p className="px-1 text-xs text-slate-500">
